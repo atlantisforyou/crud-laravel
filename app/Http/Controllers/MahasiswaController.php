@@ -4,13 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\MahasiswaExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MahasiswaController extends Controller
 {
     // READ
-    public function index()
+    public function index(Request $request)
     {
-        $mahasiswa = Mahasiswa::all();
+        $search = $request->input('search');
+
+        $mahasiswa = Mahasiswa::when($search, function ($query, $search) {
+            $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('nim', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })->paginate(5);
+
+        $mahasiswa->appends(['search' => $search]);
+
         return view('mahasiswa.index', compact('mahasiswa'));
     }
 
@@ -58,4 +70,39 @@ class MahasiswaController extends Controller
         $mahasiswa->delete();
         return redirect()->route('mahasiswa.index')->with('success','Data berhasil dihapus!');
     }
+
+    // CETAK PDF
+    public function cetakPDF(Request $request)
+    {
+        $search = $request->input('search');
+
+        $mahasiswas = Mahasiswa::when($search, function ($query, $search) {
+            $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('nim', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })->orderBy('nim', 'asc')->get();
+
+        $judul = "Daftar Mahasiswa";
+
+        $pdf = PDF::loadView('mahasiswa.pdf', compact('mahasiswas', 'judul'));
+        return $pdf->download('Daftar_Mahasiswa.pdf');
+    }
+
+    // EXPORT EXCEL
+    public function exportExcel(Request $request)
+    {
+        $search = $request->input('search');
+
+        $mahasiswas = Mahasiswa::when($search, function ($query, $search) {
+            $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('nim', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })->orderBy('nim', 'asc')->get();
+
+        $judul = "Daftar Mahasiswa";
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MahasiswaExport($mahasiswas, $judul), 'Daftar_Mahasiswa.xlsx');
+    }
+
+
 }
