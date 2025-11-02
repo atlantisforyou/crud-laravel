@@ -2,13 +2,11 @@
 <html>
 <head>
     <title>Daftar Mahasiswa</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
     <div class="container py-5">
 
-        <!-- Header dan Tombol -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="h3 text-primary">📋 Daftar Mahasiswa</h1>
             <div class="d-flex gap-2">
@@ -16,7 +14,7 @@
                     📗 Export Excel
                 </a>
                 <a href="{{ route('mahasiswa.cetakPDF', ['search' => request('search')]) }}" class="btn btn-danger">
-                    📕 Cetak PDF
+                    📕 Export PDF
                 </a>
                 <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">
                     + Tambah Mahasiswa
@@ -24,7 +22,6 @@
             </div>
         </div>
 
-        <!-- 🔍 Form Pencarian -->
         <form action="{{ route('mahasiswa.index') }}" method="GET" class="mb-4">
             <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Cari Nama, NIM, atau Email..."
@@ -76,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
